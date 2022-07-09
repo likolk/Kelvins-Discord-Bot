@@ -35,7 +35,7 @@ async def on_message(message):
     # check if the channel is the right one (i.e. make sure it does not respond to any channel)
     if message.channel.name == 'general':
         # add a message that the bot should recognize before responding
-        if user_message.lower() == 'hello':  # case insensitive
+        if user_message.lower() == 'hello' or user_message.lower() == 'hey' or user_message.lower() == 'hi': # case insensitive
             await message.channel.send(f'Hello {username} :)!')  # respond to the username that sent the message
             return
         # similarly, we add more if statements
