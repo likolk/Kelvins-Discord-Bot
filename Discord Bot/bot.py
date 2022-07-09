@@ -2,7 +2,7 @@ import discord
 import random
 
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
-TOKEN = 'OTk1MjYxNTY0ODc1NzE0NjAy.GK40hd.MLVR7MVyHCYaipTQjyQscNrI0kDa8etuxBmC0w'
+TOKEN = 'OTk1MjYxNTY0ODc1NzE0NjAy.Gxobql.IT5pJArAE6Tc6nRAwICKiOZHHJU-XBD0-aNSOE'
 
 # create a client
 client = discord.Client()
