@@ -52,7 +52,7 @@ async def on_message(message):
 
 
 # Read the Bot Token from another file (which will not be public) and store that info in the TOKEN variable.
-with open('token.txt') as f:
+with open('token.env') as f:
     TOKEN = f.readline()
 
 client.run(TOKEN)
