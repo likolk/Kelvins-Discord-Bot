@@ -1,11 +1,16 @@
 import discord
 import random
+import os
+from dotenv import load_dotenv
 
+# load the token from the .env file
+load_dotenv()
+TOKEN = os.getenv('TOKEN')
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
-# check for token.txt file
 
 # create a client
 client = discord.Client()
+
 
 
 # create a client event
@@ -35,7 +40,7 @@ async def on_message(message):
             return
         # similarly, we add more if statements
         elif user_message.lower() == 'ciao':
-            await message.channel.send(f'Ci vediamo dopo :D')
+            await message.channel.send(f'Ci vediamo dopo!!')
             return
         elif user_message.lower() == '!random':
             response = f'This is your random number: {random.randrange(1000000)}'
@@ -52,7 +57,9 @@ async def on_message(message):
 
 
 # Read the Bot Token from another file (which will not be public) and store that info in the TOKEN variable.
-with open('token.env') as f:
-    TOKEN = f.readline()
+# Upd: better version in the top, using .env file
+#with open('.env') as f:
+ #   TOKEN = f.readline()
 
+# run the program
 client.run(TOKEN)
