@@ -2,7 +2,7 @@ import discord
 import random
 
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
-TOKEN = 'OTk1MjYxNTY0ODc1NzE0NjAy.Gxobql.IT5pJArAE6Tc6nRAwICKiOZHHJU-XBD0-aNSOE'
+# check for token.txt file
 
 # create a client
 client = discord.Client()
@@ -10,9 +10,49 @@ client = discord.Client()
 
 # create a client event
 @client.event
-async def on_ready(): # once you start the bot, this async function is called
+async def on_ready():  # once you start the bot, this async function is called
     print('Online Bot {0.user}'.format(client))
 
-if __name__ == "__main__":
-    client.run(TOKEN)
-# Run
+
+# Respond to user input commands
+@client.event
+async def on_message(message):
+    username = str(message.author).split('#')[
+        0]  # get the bot's username and stop when you find a hashtag in the discord's Username
+    user_message = str(message.content)  # the content of the message
+    channel = str(message.channel.name)
+    print(f'{username}: {user_message} ({channel}')
+
+    # make sure the chatbot does not indefinitely respond to its own message
+    if message.author == client.user:
+        return  # don't do anything
+
+    # check if the channel is the right one (i.e. make sure it does not respond to any channel)
+    if message.channel.name == 'general':
+        # add a message that the bot should recognize before responding
+        if user_message.lower() == 'hello':  # case insensitive
+            await message.channel.send(f'Hello {username} :)!')  # respond to the username that sent the message
+            return
+        # similarly, we add more if statements
+        elif user_message.lower() == 'ciao':
+            await message.channel.send(f'Ci vediamo dopo :D')
+            return
+        elif user_message.lower() == '!random':
+            response = f'This is your random number: {random.randrange(1000000)}'
+            await message.channel.send(response)
+            return
+        elif user_message.lower() == 'γαμαθ':
+            await message.channel.send(f'50 Euro')
+            return
+
+    # create a message than can be responded anywhere on the server
+    if user_message.lower() == '!anywhere':
+        await message.channel.send('This can be used anywhere')
+        return
+
+
+# Read the Bot Token from another file (which will not be public) and store that info in the TOKEN variable.
+with open('token.txt') as f:
+    TOKEN = f.readline()
+
+client.run(TOKEN)
