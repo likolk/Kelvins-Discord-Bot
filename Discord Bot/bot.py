@@ -1,10 +1,14 @@
-import discord
-import random
 import os
-
-from dotenv import load_dotenv
+import random
 from datetime import datetime
 
+import discord
+from discord.ext.commands import Bot
+from dotenv import load_dotenv
+
+bot = Bot(command_prefix='!')
+intents = discord.Intents.default()
+intents.members = True
 
 # load the token from the .env file
 load_dotenv()
@@ -40,23 +44,26 @@ async def on_message(message):
     # check if the channel is the right one (i.e. make sure it does not respond to any channel)
     if message.channel.name == 'general':
         # add a message that the bot should recognize before responding
-        if user_message.lower() == 'hello' or user_message.lower() == 'hey' or user_message.lower() == 'hi':  # case insensitive
-            await message.channel.send(f'Hello {username} :)!')  # respond to the username that sent the message
+        if user_message.lower() == 'hello' or user_message.lower() == 'hey' or user_message.lower() == 'hi':  # case
+            # insensitive
+            await message.channel.send(
+                f'Hello {message.author.mention} :)!')  # respond to the username that sent the message
             return
         # similarly, we add more if statements
         elif user_message.lower() == 'ciao':
-            await message.channel.send(f'Ci vediamo dopo!!')
+            await message.channel.send(f'Ci vediamo dopo{message.author.mention}!!')
             return
         elif user_message.lower() == '!random':
-            response = f'This is your random number: {random.randrange(1000000)}'
+            response = f'{message.author.mention}This is your random number: {random.randrange(1000000)}'
             await message.channel.send(response)
             return
         elif user_message.lower() == 'γαμαθ':
-            await message.channel.send(f'50 Euro')
+            await message.channel.send(f'50 Euro {message.author.mention}')
             return
         # delete the message sent by the user if it contains profanity
         elif 'fuck' in message.content:  # if this word is contained in any part of the message, then delete the whole message.
-            await message.channel.send(f'Hey😠 {message.author.mention},😠 Profanity is not allowed on this server😠😠😠')
+            await message.channel.send(
+                f'Hey😠 {message.author.mention},😠 Profanity is not allowed on this server😠😠😠')
             await message.delete()
             return
 
@@ -67,24 +74,30 @@ async def on_message(message):
 
         if user_message.lower() == 'what time is it?':
             time = datetime.now()
-            await message.channel.send(f'Hey {username} the time is:')
+            await message.channel.send(f'Hey {message.author.mention} the time is:')
             await message.channel.send(time)
             return
 
         # the following statement uploads a picture (meme)
         if user_message.lower() == 'meme':
             with open('PointersMeme.jpg', 'r') as f:
+                await message.channel.send(f'Here is your meme {message.author.mention}')
                 await message.channel.send(file=discord.File('/Users/cuenc/Downloads/PointersMeme.jpg'))
 
+        # If user provides commands !join and !leave, the bot automatically joins/leaves the VC
+        # NOTE: You need to have joined first the VC for this to work
+        if message.content.startswith('!join'):
+            channel = message.author.voice.channel
+            await channel.connect()
 
-# Read the Bot Token from another file (which will not be public) and store that info in the TOKEN variable.
-# Upd: better version in the top, using .env file
-# with open('.env') as f:
-#   TOKEN = f.readline()
-
-
-
-
+        # leave vc
+        if message.content.startswith('!leave'):
+            if message.author.guild.voice_client is None: # if the bot is not in the channel
+                await message.channel.send('I must be in the Voice Channel in order to leave from it, isnt that '
+                                           'obvious?😂😂')
+            else:
+                await message.channel.send('Disconnecting from the Voice Channel')
+                await message.author.guild.voice_client.disconnect()
 
 # run the program
 client.run(TOKEN)
