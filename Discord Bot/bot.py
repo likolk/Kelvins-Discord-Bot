@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime
 
+
 # load the token from the .env file
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
@@ -55,7 +56,7 @@ async def on_message(message):
             return
         # delete the message sent by the user if it contains profanity
         elif 'fuck' in message.content:  # if this word is contained in any part of the message, then delete the whole message.
-            await message.channel.send(f'Hey😠 {username},😠 Profanity is not allowed on this server😠😠😠')
+            await message.channel.send(f'Hey😠 {message.author.mention},😠 Profanity is not allowed on this server😠😠😠')
             await message.delete()
             return
 
@@ -80,6 +81,10 @@ async def on_message(message):
 # Upd: better version in the top, using .env file
 # with open('.env') as f:
 #   TOKEN = f.readline()
+
+
+
+
 
 # run the program
 client.run(TOKEN)
