@@ -1,12 +1,14 @@
 import os
 import random
 from datetime import datetime
-
 import discord
 import youtube_dl
 from discord.ext import commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
+
+
+
 
 bot = Bot(command_prefix='!')
 intents = discord.Intents.default()
@@ -122,6 +124,12 @@ async def on_message(message):
             message.author.guild.voice_client.play(audio)
             await message.channel.send('Playing ' + song)
 
+
+@bot.command()
+async def mute(ctx, member: discord.Member):
+    role = discord.utils.get(ctx.guild.roles, name='Muted')
+    await member.add_roles(role)
+    await ctx.send("role added")
 
 # run the program
 client.run(TOKEN)
