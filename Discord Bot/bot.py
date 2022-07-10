@@ -3,6 +3,8 @@ import random
 from datetime import datetime
 
 import discord
+import youtube_dl
+from discord.ext import commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
 
@@ -16,7 +18,8 @@ TOKEN = os.getenv('TOKEN')
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
 
 # create a client
-client = discord.Client()
+# client = discord.Client()
+client = commands.Bot(command_prefix="prefix")
 
 # path to read from
 os.chdir("/Users/cuenc/Downloads")
@@ -92,12 +95,33 @@ async def on_message(message):
 
         # leave vc
         if message.content.startswith('!leave'):
-            if message.author.guild.voice_client is None: # if the bot is not in the channel
+            if message.author.guild.voice_client is None:  # if the bot is not in the channel
                 await message.channel.send('I must be in the Voice Channel in order to leave from it, isnt that '
                                            'obvious?😂😂')
             else:
                 await message.channel.send('Disconnecting from the Voice Channel')
                 await message.author.guild.voice_client.disconnect()
+
+        # play a song #TODO: Currently not working properly
+        if message.content.startswith('.play ') and message.author.guild.voice_client is not None:
+            song = message.content[6:]
+            if os.path.exists("games.mp3"):
+                os.remove('games.mp3')
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+                'outtmpl': 'burak.mp3',
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([song])
+            audio = discord.FFmpegPCMAudio('games.mp3')
+            message.author.guild.voice_client.play(audio)
+            await message.channel.send('Playing ' + song)
+
 
 # run the program
 client.run(TOKEN)
