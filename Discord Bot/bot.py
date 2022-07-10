@@ -1,14 +1,15 @@
 import os
 import random
 from datetime import datetime
-import discord
+
+import aiohttp
 import youtube_dl
-from discord.ext import commands
 from discord.ext.commands import Bot
 from dotenv import load_dotenv
-
-
-
+import discord
+from discord.ext import commands
+from requests import get
+import json
 
 bot = Bot(command_prefix='!')
 intents = discord.Intents.default()
@@ -18,6 +19,7 @@ intents.members = True
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
+
 
 # create a client
 # client = discord.Client()
@@ -84,7 +86,7 @@ async def on_message(message):
             return
 
         # the following statement uploads a picture (meme)
-        if user_message.lower() == 'meme':
+        if user_message.lower() == 'haha':
             with open('PointersMeme.jpg', 'r') as f:
                 await message.channel.send(f'Here is your meme {message.author.mention}')
                 await message.channel.send(file=discord.File('/Users/cuenc/Downloads/PointersMeme.jpg'))
@@ -130,6 +132,17 @@ async def mute(ctx, member: discord.Member):
     role = discord.utils.get(ctx.guild.roles, name='Muted')
     await member.add_roles(role)
     await ctx.send("role added")
+
+
+@client.command(pass_context=True)
+async def meme(ctx):
+    embed = discord.Embed(title="", description="")
+    async with aiohttp.ClientSession() as cs:
+        async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
+            res = await r.json()
+            embed.set_image(url=res['data']['children'][random.randint(0, 25)]['data']['url'])
+            await ctx.send(embed=embed)
+
 
 # run the program
 client.run(TOKEN)
