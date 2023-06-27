@@ -5,3 +5,4 @@ Discord Bot/.env
 Discord Bot/token.env
 *.env
 Discord Bot/token.env
+.DS_Store

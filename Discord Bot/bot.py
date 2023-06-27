@@ -1,5 +1,6 @@
 import os
 import random
+import requests
 from datetime import datetime
 
 import aiohttp
@@ -20,6 +21,10 @@ load_dotenv()
 TOKEN = os.getenv('TOKEN')
 # The unique token of the bot retrieved from Discord documentation (https://discord.com/developers/applications)
 
+# intents = discord.Intents.default()
+# intents.message_content = True
+# client = discord.Client(intents=intents)
+
 
 # create a client
 # client = discord.Client()
@@ -38,11 +43,12 @@ async def on_ready():  # once you start the bot, this async function is called
 # Respond to user input commands
 @client.event
 async def on_message(message):
-    username = str(message.author).split('#')[0]  # get the bot's username and stop when you find a hashtag
+    # get the bot's username and stop when you find a hashtag
+    username = str(message.author).split('#')[0]
     # in the discord's Username
     user_message = str(message.content)  # the content of the message
     channel = str(message.channel.name)
-    print(f'{username}: {user_message} ({channel}')
+    print(f'{username}: {user_message} ({channel})')
 
     # make sure the chatbot does not indefinitely respond to its own message
     if message.author == client.user:
@@ -50,11 +56,11 @@ async def on_message(message):
 
     # check if the channel is the right one (i.e. make sure it does not respond to any channel)
     if message.channel.name == 'general':
+        print("inside general")
         # add a message that the bot should recognize before responding
-        if user_message.lower() == 'hello' or user_message.lower() == 'hey' or user_message.lower() == 'hi':  # case
-            # insensitive
-            await message.channel.send(
-                f'Hello {message.author.mention} :)!')  # respond to the username that sent the message
+        print(f'{username}: {user_message} ({channel})')
+        if user_message.lower() == 'hello':
+            await message.channel.send(f'Hey {message.author.mention}!!')
             return
         # similarly, we add more if statements
         elif user_message.lower() == 'ciao':
@@ -68,7 +74,8 @@ async def on_message(message):
             await message.channel.send(f'50 Euro {message.author.mention}')
             return
         # delete the message sent by the user if it contains profanity
-        elif 'fuck' in message.content:  # if this word is contained in any part of the message, then delete the whole message.
+        # if this word is contained in any part of the message, then delete the whole message.
+        elif 'fuck' in message.content:
             await message.channel.send(
                 f'Hey😠 {message.author.mention},😠 Profanity is not allowed on this server😠😠😠')
             await message.delete()
@@ -79,8 +86,9 @@ async def on_message(message):
             await message.channel.send('This can be used anywhere')
             return
 
-        if user_message.lower() == 'what time is it?':
-            time = datetime.now()
+        # check what time is it. when "what time" is typed, no matter what follows, respond
+        if 'what time' in user_message.lower():
+            time = datetime.now().strftime('%H:%M:%S')
             await message.channel.send(f'Hey {message.author.mention} the time is:')
             await message.channel.send(time)
             return
@@ -95,19 +103,21 @@ async def on_message(message):
         # NOTE: You need to have joined first the VC for this to work
         if message.content.startswith('!join'):
             channel = message.author.voice.channel
-            await channel.connect()
+            voice_client = message.guild.voice_client
 
-        # leave vc
-        if message.content.startswith('!leave'):
-            if message.author.guild.voice_client is None:  # if the bot is not in the channel
-                await message.channel.send('I must be in the Voice Channel in order to leave from it, isnt that '
-                                           'obvious?😂😂')
+            if voice_client and voice_client.is_connected():
+                await voice_client.move_to(channel)
             else:
-                await message.channel.send('Disconnecting from the Voice Channel')
-                await message.author.guild.voice_client.disconnect()
+                await channel.connect()
+                message.guild.voice_client.mute = False  # Unmute the bot when it joins the voice channel
 
-        # play a song #TODO: Currently not working properly
-        if message.content.startswith('.play ') and message.author.guild.voice_client is not None:
+        if message.content.startswith('!leave'):
+            voice_client = message.guild.voice_client
+
+            if voice_client and voice_client.is_connected():
+                await voice_client.disconnect()
+
+        if message.content.startswith('!games') and message.author.guild.voice_client is not None:
             song = message.content[6:]
             if os.path.exists("games.mp3"):
                 os.remove('games.mp3')
@@ -118,13 +128,20 @@ async def on_message(message):
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
-                'outtmpl': 'burak.mp3',
+                'outtmpl': 'games.mp3',
             }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([song])
             audio = discord.FFmpegPCMAudio('games.mp3')
             message.author.guild.voice_client.play(audio)
             await message.channel.send('Playing ' + song)
+
+
+
+       
+
+        
+
 
 
 @bot.command()
@@ -140,7 +157,8 @@ async def meme(ctx):
     async with aiohttp.ClientSession() as cs:
         async with cs.get('https://www.reddit.com/r/dankmemes/new.json?sort=hot') as r:
             res = await r.json()
-            embed.set_image(url=res['data']['children'][random.randint(0, 25)]['data']['url'])
+            embed.set_image(url=res['data']['children']
+                            [random.randint(0, 25)]['data']['url'])
             await ctx.send(embed=embed)
 
 
