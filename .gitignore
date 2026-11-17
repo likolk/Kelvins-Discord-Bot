@@ -6,3 +6,25 @@ Discord Bot/token.env
 *.env
 Discord Bot/token.env
 .DS_Store
+# OS and editor files
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+myenv/
+.env
+
+# Java
+*.class
+
+# Node
+node_modules/
+yarn-error.log
+
+# LaTeX temp files
+.texpadtmp/
